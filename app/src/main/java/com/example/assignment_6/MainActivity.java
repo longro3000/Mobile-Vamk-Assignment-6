@@ -33,9 +33,12 @@ public class MainActivity extends AppCompatActivity {
     Button SubmitButton, SearchButton;
     // Here we create the layout
     LinearLayout linearLayout;
-    AutoCompleteTextView SearchEditText;
+    AutoCompleteTextView SearchByFirstName, SearchByLastName, SearchByPhone;
     ArrayList<Contact> phoneCatalog = new ArrayList<Contact>();
-    ArrayList<String> names = new ArrayList<String>();
+    ArrayList<String> firstNames = new ArrayList<String>();
+    ArrayList<String> lastNames = new ArrayList<String>();
+    ArrayList<String> phones = new ArrayList<String>();
+    ArrayAdapter<String> arrayAdapter, arrayAdapter1, arrayAdapter2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         // initial Some data
 
         Contact newContact1 = new Contact("Nguyen", "Bui", "0469540115", "Bachelor", "dálkdhasfkljsaf");
-        Contact newContact2 = new Contact("Hyeok", "Lee Sang", "2013151620", "HighSchool", "Win Worlds");
+        Contact newContact2 = new Contact("Hyeok", "Lee", "2013151620", "HighSchool", "Win Worlds");
         Contact newContact3 = new Contact("abc", "def", "0123456789", "Master", "abcdefghijklmnobq");
         Contact newContact4 = new Contact("Luan", "Hoang", "20132020", "Bachelor", "Pelu");
 
@@ -131,33 +134,54 @@ public class MainActivity extends AppCompatActivity {
         linearLayout.addView(summaryTextView);
 
         TextView SearchTextView = new TextView(this);
-        SearchTextView.setText("Search");
+        SearchTextView.setText("Search By First Name");
         SearchTextView.setLayoutParams(viewLayoutParams);
         linearLayout.addView(SearchTextView);
 
 //Here we define the AutoCompleteTextView object
-        SearchEditText = new AutoCompleteTextView(this);
-        SearchEditText.setLayoutParams(viewLayoutParams);
-        linearLayout.addView(SearchEditText);
+        SearchByFirstName = new AutoCompleteTextView(this);
+        SearchByFirstName.setLayoutParams(viewLayoutParams);
+        linearLayout.addView(SearchByFirstName);
 //Here we set the text color
-        SearchEditText.setTextColor(Color.RED);
+        SearchByFirstName.setTextColor(Color.RED);
 //Here we define the required number of letters to be typed in the AutoCompleteTextView
-        SearchEditText.setThreshold(1);
+        SearchByFirstName.setThreshold(1);
 //Here we set the array adapter for the AutoCompleteTextView
-        updateArrayAdapter();
+        TextView SearchTextView1 = new TextView(this);
+        SearchTextView1.setText("Search By Last Name");
+        SearchTextView1.setLayoutParams(viewLayoutParams);
+        linearLayout.addView(SearchTextView1);
 
-//Search Button
+//Here we define the AutoCompleteTextView object
+        SearchByLastName = new AutoCompleteTextView(this);
+        SearchByLastName.setLayoutParams(viewLayoutParams);
+        linearLayout.addView(SearchByLastName);
+//Here we set the text color
+        SearchByLastName.setTextColor(Color.RED);
+//Here we define the required number of letters to be typed in the AutoCompleteTextView
+        SearchByLastName.setThreshold(1);
+//Here we set the array adapter for the AutoCompleteTextView
 
-        SearchButton = new Button(this);
-        SearchButton.setText("Search");
-        SearchButton.setLayoutParams(viewLayoutParams);
-        SearchButton.setOnClickListener(buttonSearchOnClick);
-        linearLayout.addView(SearchButton);
+        // Here we define a text view
+
+        TextView SearchTextView2 = new TextView(this);
+        SearchTextView2.setText("Search By Phone Number");
+        SearchTextView2.setLayoutParams(viewLayoutParams);
+        linearLayout.addView(SearchTextView2);
+
+//Here we define the AutoCompleteTextView object
+        SearchByPhone = new AutoCompleteTextView(this);
+        SearchByPhone.setLayoutParams(viewLayoutParams);
+        linearLayout.addView(SearchByPhone);
+//Here we set the text color
+        SearchByPhone.setTextColor(Color.RED);
+//Here we define the required number of letters to be typed in the AutoCompleteTextView
+        SearchByPhone.setThreshold(1);
+//Here we set the array adapter for the AutoCompleteTextView
+        InitializingArrayAdapter();
+
 
 // Here we define a text view
-        searchTextView = new TextView(this);
-        searchTextView.setLayoutParams(viewLayoutParams);
-        linearLayout.addView(searchTextView);
         ScrollView scrollView = new ScrollView(this);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         scrollView.setLayoutParams(layoutParams);
@@ -170,17 +194,29 @@ public class MainActivity extends AppCompatActivity {
         this.addContentView(scrollView, layoutParams);
     }
 
-    private void updateArrayAdapter() {
+    private void InitializingArrayAdapter() {
         for (Contact c : phoneCatalog) {
-            if ((!names.contains(c.firstName)) || (!names.contains(c.lastName)) || (!names.contains(c.phoneNumber))) {
-                if (!names.contains(c.firstName)) names.add(c.firstName);
-                if (!names.contains(c.lastName)) names.add(c.lastName);
-                if (!names.contains(c.phoneNumber)) names.add(c.phoneNumber);
+                firstNames.add(c.firstName + " --- " + c.lastName + " --- " + c.phoneNumber);
+                lastNames.add(c.lastName + " --- " + c.firstName + " --- " + c.phoneNumber);
+                phones.add(c.phoneNumber + " --- " + c.firstName + " --- " + c.lastName);
             };
-        };
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, names );
-        SearchEditText.setAdapter(arrayAdapter);
-    }
+
+        arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, firstNames );
+        SearchByFirstName.setAdapter(arrayAdapter);
+
+        arrayAdapter1 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, lastNames );
+        SearchByLastName.setAdapter(arrayAdapter1);
+
+        arrayAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, phones );
+        SearchByPhone.setAdapter(arrayAdapter2);
+    };
+
+    private void updatingArrayAdapter(Contact c) {
+        arrayAdapter.add(c.firstName + " --- " + c.lastName + " --- " + c.phoneNumber);
+        arrayAdapter1.add(c.lastName + " --- " + c.firstName + " --- " + c.phoneNumber);
+        arrayAdapter2.add(c.phoneNumber + " --- " + c.firstName + " --- " + c.lastName);
+    };
+
 
     private OnClickListener buttonSubmitOnClick = new OnClickListener() {
         @Override
@@ -222,25 +258,9 @@ public class MainActivity extends AppCompatActivity {
                         summaryString += e.toString() + "\n";
                     }
                     summaryTextView.setText(summaryString);
-                    updateArrayAdapter();
+
+                    updatingArrayAdapter(newContact);
             };
         };
-    };
-    private OnClickListener buttonSearchOnClick = new OnClickListener(){
-        @Override
-        public void onClick(View v) {
-            if (SearchEditText.getText().length() == 0) {
-                SearchEditText.setBackgroundColor(Color.rgb(254, 150, 150));
-            } else {
-                String searchString = "";
-                for (Contact e : phoneCatalog) {
-                    if (e.Search(SearchEditText.getText().toString())) {
-                        searchString += e.toString() + "\n";
-                    }
-                }
-                if (searchString.length() >0) searchTextView.setText(searchString); else
-                    searchTextView.setText("Not Found !!!");
-            }
-        }
     };
 }
