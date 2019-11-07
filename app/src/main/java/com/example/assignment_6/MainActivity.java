@@ -9,6 +9,8 @@ import android.view.View.OnClickListener;
 
 import android.view.ViewGroup;
 
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -25,14 +27,15 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    EditText FirstNameEditText = null, LastNameEditText, PhoneNumberEditText, EducationEditText, HobbiesEditText, SearchEditText;
+    EditText FirstNameEditText = null, LastNameEditText, PhoneNumberEditText, EducationEditText, HobbiesEditText;
     TextView summaryTextView = null, searchTextView = null;
     LayoutParams viewLayoutParams = null;
     Button SubmitButton, SearchButton;
     // Here we create the layout
     LinearLayout linearLayout;
-
+    AutoCompleteTextView SearchEditText;
     ArrayList<Contact> phoneCatalog = new ArrayList<Contact>();
+    ArrayList<String> names = new ArrayList<String>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,10 +134,17 @@ public class MainActivity extends AppCompatActivity {
         SearchTextView.setText("Search");
         SearchTextView.setLayoutParams(viewLayoutParams);
         linearLayout.addView(SearchTextView);
-        // Here we define the edit text
-        SearchEditText = new EditText(this);
+
+//Here we define the AutoCompleteTextView object
+        SearchEditText = new AutoCompleteTextView(this);
         SearchEditText.setLayoutParams(viewLayoutParams);
         linearLayout.addView(SearchEditText);
+//Here we set the text color
+        SearchEditText.setTextColor(Color.RED);
+//Here we define the required number of letters to be typed in the AutoCompleteTextView
+        SearchEditText.setThreshold(1);
+//Here we set the array adapter for the AutoCompleteTextView
+        updateArrayAdapter();
 
 //Search Button
 
@@ -152,11 +162,24 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         scrollView.setLayoutParams(layoutParams);
 
+
         LinearLayout.LayoutParams linearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT);
 
         scrollView.addView(linearLayout);
         this.addContentView(scrollView, layoutParams);
+    }
+
+    private void updateArrayAdapter() {
+        for (Contact c : phoneCatalog) {
+            if ((!names.contains(c.firstName)) || (!names.contains(c.lastName)) || (!names.contains(c.phoneNumber))) {
+                if (!names.contains(c.firstName)) names.add(c.firstName);
+                if (!names.contains(c.lastName)) names.add(c.lastName);
+                if (!names.contains(c.phoneNumber)) names.add(c.phoneNumber);
+            };
+        };
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, names );
+        SearchEditText.setAdapter(arrayAdapter);
     }
 
     private OnClickListener buttonSubmitOnClick = new OnClickListener() {
@@ -199,8 +222,7 @@ public class MainActivity extends AppCompatActivity {
                         summaryString += e.toString() + "\n";
                     }
                     summaryTextView.setText(summaryString);
-
-
+                    updateArrayAdapter();
             };
         };
     };
